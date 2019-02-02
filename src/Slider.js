@@ -221,16 +221,19 @@ export default class Slider extends PureComponent {
 
   render() {
     const {
+      disabled,
       minimumValue,
       maximumValue,
       minimumTrackTintColor,
       maximumTrackTintColor,
       thumbTintColor,
       thumbImage,
+      showSecondThumb,
       styles,
       style,
       trackStyle,
       thumbStyle,
+      thumbStyleSecond,
       debugTouchArea,
       onValueChange,
       thumbTouchSize,
@@ -314,7 +317,7 @@ export default class Slider extends PureComponent {
         >
           {this._renderThumbImage()}
         </Animated.View>
-        {this.props.disabled && this.props.showSecondThumb ?
+        {disabled && showSecondThumb ?
           <Animated.View
             renderToHardwareTextureAndroid
             style={[
