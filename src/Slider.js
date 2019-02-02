@@ -59,12 +59,14 @@ export default class Slider extends PureComponent {
      * the value, the component won't be reset to its inital value.
      */
     value: PropTypes.number,
+    valueSecond: PropTypes.number,
 
     /**
      * If true the user won't be able to move the slider.
      * Default value is false.
      */
     disabled: PropTypes.bool,
+    showSecondThumb: PropTypes.bool,
 
     /**
      * Initial minimum value of the slider. Default value is 0.
@@ -142,6 +144,7 @@ export default class Slider extends PureComponent {
      * The style applied to the thumb.
      */
     thumbStyle: ViewPropTypes.style,
+    thumbStyleSecond: ViewPropTypes.style,
 
     /**
      * Sets an image for the thumb.
@@ -171,6 +174,7 @@ export default class Slider extends PureComponent {
 
   static defaultProps = {
     value: 0,
+    valueSecond: 0,
     minimumValue: 0,
     maximumValue: 1,
     step: 0,
@@ -188,6 +192,7 @@ export default class Slider extends PureComponent {
     thumbSize: { width: 0, height: 0 },
     allMeasured: false,
     value: new Animated.Value(this.props.value),
+    valueSecond: new Animated.Value(this.props.valueSecond),
   };
 
   componentWillMount() {
@@ -235,6 +240,7 @@ export default class Slider extends PureComponent {
     } = this.props;
     const {
       value,
+      valueSecond,
       containerSize,
       trackSize,
       thumbSize,
@@ -242,6 +248,13 @@ export default class Slider extends PureComponent {
     } = this.state;
     const mainStyles = styles || defaultStyles;
     const thumbLeft = value.interpolate({
+      inputRange: [minimumValue, maximumValue],
+      outputRange: I18nManager.isRTL
+        ? [0, -(containerSize.width - thumbSize.width)]
+        : [0, containerSize.width - thumbSize.width],
+      // extrapolate: 'clamp',
+    });
+    const thumbLeftSecond = valueSecond.interpolate({
       inputRange: [minimumValue, maximumValue],
       outputRange: I18nManager.isRTL
         ? [0, -(containerSize.width - thumbSize.width)]
@@ -301,6 +314,22 @@ export default class Slider extends PureComponent {
         >
           {this._renderThumbImage()}
         </Animated.View>
+        {this.props.disabled && this.props.showSecondThumb ?
+          <Animated.View
+            renderToHardwareTextureAndroid
+            style={[
+              { backgroundColor: thumbTintColor },
+              mainStyles.thumb,
+              thumbStyleSecond,
+              {
+                transform: [{ translateX: thumbLeftSecond }, { translateY: 0 }],
+                ...valueVisibleStyle,
+              },
+            ]}
+          >
+            {this._renderThumbImage()}
+          </Animated.View> : null
+        }
         <View
           renderToHardwareTextureAndroid
           style={[defaultStyles.touchArea, touchOverflowStyle]}
@@ -322,6 +351,7 @@ export default class Slider extends PureComponent {
       style,
       trackStyle,
       thumbStyle,
+      thumbStyleSecond,
       ...otherProps
     } = props;
 
